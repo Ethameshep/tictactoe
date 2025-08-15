@@ -1,0 +1,522 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tic Tac Toe</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Huninn&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --color-primary: mediumpurple;
+            --color-text: mintcream;
+            --color-x: violet;
+            --color-o: darkturquoise;
+        }
+        body {
+            font-family: "Huninn", sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #121212;
+            color: var(--color-text);
+        }
+        h1 {
+            color: var(--color-primary);
+            margin-bottom: 20px;
+            font-size: 2.5em;
+            font-weight: 600;
+            letter-spacing: 1px;
+        }
+        .game-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background-color: #1e1e1e;
+            padding: 30px;
+            max-width: 400px;
+            border-radius: 12px;            
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.5);
+        }
+        .board {
+            display: grid;
+            grid-template-columns: repeat(3, 120px);
+            grid-template-rows: repeat(3, 120px);
+            gap: 8px;
+            margin-bottom: 25px;
+            background-color: #333;
+            padding: 12px;
+            border-radius: 8px;
+        }
+        .cell {
+            width: 120px;
+            height: 120px;
+            background-color: #2d2d2d;
+            border: none;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 68px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+        }
+        .cell:not(.win-x):not(.win-o):hover {
+            background-color: #3d3d3d;
+            transform: translateY(-2px);
+        }
+        .status {
+            font-size: 24px;
+            margin-bottom: 15px;
+            color: #e0e0e0;
+            font-weight: 500;
+        }
+        .game-info {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-bottom: 20px;
+            width: 100%;
+            text-wrap: balance;
+        }
+        .turn-counter {
+            font-size: 18px;
+            color:  var(--color-primary);
+            margin-bottom: 10px;
+            font-weight: 500;
+            background-color: rgba(187, 134, 252, 0.1);
+            padding: 8px 16px;
+            border-radius: 20px;
+            display: inline-block;
+        }
+        button {
+            padding: 12px 24px;
+            font-family: "Huninn", sans-serif;
+            font-size: 16px;
+            background-color:  var(--color-primary);
+            color: #121212;
+            border: none;
+            border-radius: 6px;
+            
+            transition: all 0.2s ease;
+            margin: 5px;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+        }
+        button:hover {
+            background-color: var(--color-primary-50);
+            cursor: pointer;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 10px rgba(0, 0, 0, 0.3);
+        }
+        .x {
+            color: var(--color-x);
+            text-shadow: 0 0 8px var(--color-x-40);
+        }
+        .o {
+            color: var(--color-o);
+            text-shadow: 0 0 8px var(--color-o-40);
+        }
+        .pulse {
+            animation: pulse 1.5s infinite ease-in-out;
+            box-shadow: 0 0 15px rgba(187, 134, 252, 0.5);
+        }
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.4; }
+            100% { opacity: 1; }
+        }
+        .win-x {
+            background-color: var(--color-x-30);
+            box-shadow: 0 0 15px var(--color-x-80);
+            animation: win-pulse 1s infinite ease-in-out;
+            border: 2px solid var(--color-x);
+        }
+        .win-o {
+            background-color: var(--color-o-30);
+            box-shadow: 0 0 15px var(--color-o-80);
+            animation: win-pulse 1s infinite ease-in-out;
+            border: 2px solid var(--color-o);
+        }
+        @keyframes win-pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.025); }
+            100% { transform: scale(1); }
+        }
+        
+        .game-options {
+            margin-bottom: 25px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 100%;
+        }
+        .mode-selector {
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+        }
+        select {
+            padding: 10px 15px;
+            font-family: "Huninn", sans-serif;
+            font-size: 16px;
+            border-radius: 6px;
+            border: none;
+            background-color: #333;
+            color: var(--color-text);
+            margin-left: 10px;
+            cursor: pointer;
+            outline: none;
+        }
+        select:focus {
+            box-shadow: 0 0 0 2px var(--color-primary);
+        }
+        .rules {
+            font-size: 14px;
+            color: var(--color-text);
+            text-align: center;
+            min-height: 3em;
+            line-height: 1.5;
+            text-wrap: balance;
+        }
+    </style>
+</head>
+<body>
+    <h1>Tic Tac Toe</h1>
+    <div class="game-container">
+
+        <div class="game-info">
+            <div class="status" id="status">X Move</div>
+            <div class="turn-counter" id="turn-counter">Moves: 1</div>
+        </div>
+
+        <div class="board" id="board">
+            <div class="cell" data-index="0"></div>
+            <div class="cell" data-index="1"></div>
+            <div class="cell" data-index="2"></div>
+            <div class="cell" data-index="3"></div>
+            <div class="cell" data-index="4"></div>
+            <div class="cell" data-index="5"></div>
+            <div class="cell" data-index="6"></div>
+            <div class="cell" data-index="7"></div>
+            <div class="cell" data-index="8"></div>
+        </div>
+
+        <div class="game-options">
+            <div class="mode-selector">
+                <label for="game-mode">Game Mode: </label>
+                <select id="game-mode">
+                    <option value="classic">Classic</option>
+                    <option value="advanced">Advanced</option>
+                </select>
+            </div>
+            <div class="rules" id="rules">
+                Classic Mode: Standard tic-tac-toe rules.
+            </div>
+        </div>
+
+        <button id="restart">Restart</button>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // Set up color variables with opacity
+            updateColorVariables();
+            
+            const board = document.getElementById('board');
+            const cells = document.querySelectorAll('.cell');
+            const status = document.getElementById('status');
+            const turnCounter = document.getElementById('turn-counter');
+            const restartButton = document.getElementById('restart');
+            const gameModeSelect = document.getElementById('game-mode');
+            const rulesText = document.getElementById('rules');
+            
+            let currentPlayer = 'X';
+            let gameState = ['', '', '', '', '', '', '', '', ''];
+            let gameActive = true;
+            let gameMode = 'classic';
+            let turnCount = 1;
+            
+            // Track move history for advanced mode
+            let xMoves = [];
+            let oMoves = [];
+            
+            const winningConditions = [
+                [0, 1, 2], // Top row
+                [3, 4, 5], // Middle row
+                [6, 7, 8], // Bottom row
+                [0, 3, 6], // Left column
+                [1, 4, 7], // Middle column
+                [2, 5, 8], // Right column
+                [0, 4, 8], // Diagonal top-left to bottom-right
+                [2, 4, 6]  // Diagonal top-right to bottom-left
+            ];
+            
+            // Update rules text when game mode changes
+            gameModeSelect.addEventListener('change', function() {
+                gameMode = this.value;
+                updateRulesText();
+                restartGame();
+            });
+            
+            function updateRulesText() {
+                if (gameMode === 'classic') {
+                    rulesText.textContent = 'Classic Mode: Standard tic-tac-toe rules.';
+                } else {
+                    rulesText.textContent = 'Advanced Mode: When a player has 3 cells selected, selecting another cell will remove their earliest selection.';
+                }
+            }
+            
+            function updatePulsingCell() {
+                // Remove pulsing effect from all cells
+                cells.forEach(cell => {
+                    cell.classList.remove('pulse');
+                });
+                
+                // Only add pulsing in advanced mode
+                if (gameMode === 'advanced') {
+                    const currentMoves = currentPlayer === 'X' ? xMoves : oMoves;
+                    
+                    // If the current player has 3 cells, make the oldest one pulse
+                    if (currentMoves.length === 3) {
+                        const oldestMoveIndex = currentMoves[0];
+                        const oldestCell = document.querySelector(`.cell[data-index="${oldestMoveIndex}"]`);
+                        oldestCell.classList.add('pulse');
+                    }
+                }
+            }
+            
+            function handleCellClick(e) {
+                const clickedCell = e.target;
+                const cellIndex = parseInt(clickedCell.getAttribute('data-index'));
+                
+                if (gameState[cellIndex] !== '' || !gameActive) {
+                    return;
+                }
+                
+                if (gameMode === 'classic') {
+                    // Classic mode - standard tic-tac-toe
+                    gameState[cellIndex] = currentPlayer;
+                    clickedCell.textContent = currentPlayer;
+                    clickedCell.classList.add(currentPlayer.toLowerCase());
+                } else {
+                    // Advanced mode - limited to 3 cells per player
+                    const currentMoves = currentPlayer === 'X' ? xMoves : oMoves;
+                    
+                    if (currentMoves.length >= 3) {
+                        // Remove the earliest move
+                        const oldestMoveIndex = currentMoves.shift();
+                        gameState[oldestMoveIndex] = '';
+                        const oldCell = document.querySelector(`.cell[data-index="${oldestMoveIndex}"]`);
+                        oldCell.textContent = '';
+                        oldCell.classList.remove('x', 'o', 'pulse');
+                    }
+                    
+                    // Add the new move
+                    gameState[cellIndex] = currentPlayer;
+                    clickedCell.textContent = currentPlayer;
+                    clickedCell.classList.add(currentPlayer.toLowerCase());
+                    currentMoves.push(cellIndex);
+                }
+                
+                checkResult();
+            }
+            
+            function checkResult() {
+                let roundWon = false;
+                let winningLine = null;
+                
+                for (let i = 0; i < winningConditions.length; i++) {
+                    const [a, b, c] = winningConditions[i];
+                    const condition = gameState[a] && gameState[a] === gameState[b] && gameState[a] === gameState[c];
+                    
+                    if (condition) {
+                        roundWon = true;
+                        winningLine = winningConditions[i];
+                        break;
+                    }
+                }
+                
+                if (roundWon) {
+                    // status.textContent = `Player ${currentPlayer} won in ${Math.ceil(turnCount/2)} moves!`;
+                    status.textContent = `${currentPlayer} WINS!`;
+                    status.classList.add(currentPlayer.toLowerCase());
+                    // turnCounter.style.display = 'none';
+                    gameActive = false;
+                    
+                    // Highlight winning cells
+                    highlightWinningCells(winningLine, currentPlayer);
+                    
+                    return;
+                }
+                
+                // In advanced mode, we can't have a draw by filling the board
+                // So we only check for a draw in classic mode
+                if (gameMode === 'classic') {
+                    const roundDraw = !gameState.includes('');
+                    if (roundDraw) {
+                        status.textContent = "It's a draw!";
+                        gameActive = false;
+                        return;
+                    }
+                }
+                
+                // Increment turn count and update display
+                turnCount++;
+                turnCounter.textContent = `Moves: ${turnCount}`;
+                
+                currentPlayer = currentPlayer === 'X' ? 'O' : 'X';
+                status.textContent = `${currentPlayer} Move`;
+                
+                // Update pulsing effect after player change
+                updatePulsingCell();
+            }
+            
+            function highlightWinningCells(winningLine, player) {
+                winningLine.forEach(index => {
+                    const cell = document.querySelector(`.cell[data-index="${index}"]`);
+                    cell.classList.add(`win-${player.toLowerCase()}`);
+                });
+            }
+            
+            function restartGame() {
+                currentPlayer = 'X';
+                gameState = ['', '', '', '', '', '', '', '', ''];
+                gameActive = true;
+                xMoves = [];
+                oMoves = [];
+                turnCount = 1;
+                turnCounter.textContent = `Moves: ${turnCount}`;
+                turnCounter.style.display = 'block';
+                status.textContent = `${currentPlayer} Move`;
+                status.classList.remove('x', 'o');
+                
+                cells.forEach(cell => {
+                    cell.textContent = '';
+                    cell.classList.remove('x', 'o', 'pulse', 'win-x', 'win-o');
+                });
+            }
+            
+            // Event listeners
+            cells.forEach(cell => {
+                cell.addEventListener('click', handleCellClick);
+            });
+            
+            restartButton.addEventListener('click', restartGame);
+            
+            // Initialize rules text
+            updateRulesText();
+        });
+        
+        function setColorOpacity(color, opacity) {
+            // Ensure opacity is between 0 and 1
+            opacity = Math.max(0, Math.min(1, opacity));
+            
+            // Create a temporary hidden element to get computed color
+            const tempEl = document.createElement('div');
+            tempEl.style.color = color;
+            tempEl.style.display = 'none';
+            document.body.appendChild(tempEl);
+            
+            // Get computed color (returns rgb/rgba format)
+            const computedColor = getComputedStyle(tempEl).color;
+            document.body.removeChild(tempEl);
+            
+            // Extract RGB values from computed color
+            const rgbValues = computedColor.match(/\d+/g);
+            if (rgbValues && rgbValues.length >= 3) {
+                const r = rgbValues[0];
+                const g = rgbValues[1];
+                const b = rgbValues[2];
+                return `rgba(${r}, ${g}, ${b}, ${opacity})`;
+            }
+            
+            return 'rgba(0, 0, 0, ' + opacity + ')';
+        }
+        
+        function updateColorVariables() {
+            // Create a style element to hold our dynamic CSS
+            const styleEl = document.createElement('style');
+            document.head.appendChild(styleEl);
+            
+            // Get all style sheets
+            const allStyles = Array.from(document.styleSheets)
+                .filter(sheet => {
+                    try {
+                        return sheet.cssRules; // This will throw if it's a cross-origin stylesheet
+                        return true;
+                    } catch (e) {
+                        return false;
+                    }
+                });
+            
+            // Find all CSS variables with opacity patterns (--color-name-XX)
+            const opacityVarRegex = /var\(--([a-zA-Z0-9-]+)-(\d+)\)/g;
+            const opacityVars = new Set();
+            
+            // Scan all rules for opacity variable patterns
+            allStyles.forEach(sheet => {
+                try {
+                    Array.from(sheet.cssRules).forEach(rule => {
+                        if (rule.cssText) {
+                            let match;
+                            while ((match = opacityVarRegex.exec(rule.cssText)) !== null) {
+                                const baseVar = match[1];
+                                const opacity = match[2];
+                                opacityVars.add(`${baseVar}-${opacity}`);
+                            }
+                        }
+                    });
+                } catch (e) {
+                    // Skip inaccessible stylesheets
+                }
+            });
+            
+            // Process all found opacity variables
+            opacityVars.forEach(varName => {
+                const [baseVar, opacityStr] = varName.split(/-(?=[^-]+$)/); // Split at the last dash
+                const opacity = parseInt(opacityStr) / 100;
+                
+                // Get the base color value
+                const baseColor = getComputedStyle(document.documentElement)
+                    .getPropertyValue(`--${baseVar}`).trim();
+                
+                // Set the opacity variant
+                document.documentElement.style.setProperty(
+                    `--${varName}`, 
+                    setColorOpacity(baseColor, opacity)
+                );
+            });
+            
+            // Set up a MutationObserver to detect theme changes
+            const observer = new MutationObserver(() => {
+                // When CSS variables change, update our opacity variants
+                opacityVars.forEach(varName => {
+                    const [baseVar, opacityStr] = varName.split(/-(?=[^-]+$)/);
+                    const opacity = parseInt(opacityStr) / 100;
+                    
+                    const baseColor = getComputedStyle(document.documentElement)
+                        .getPropertyValue(`--${baseVar}`).trim();
+                    
+                    document.documentElement.style.setProperty(
+                        `--${varName}`, 
+                        setColorOpacity(baseColor, opacity)
+                    );
+                });
+            });
+            
+            // Observe changes to style attribute and class changes
+            observer.observe(document.documentElement, {
+                attributes: true,
+                attributeFilter: ['style', 'class']
+            });
+        }
+    </script>
+</body>
+</html> 
